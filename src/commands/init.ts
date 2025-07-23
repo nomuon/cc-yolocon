@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import path from 'path';
 import * as fs from '../lib/fs.js';
-import { DEVCONTAINER_JSON, DOCKERFILE, DOCKER_COMPOSE_YML } from '../lib/templates.js';
+import { DEVCONTAINER_JSON, DOCKERFILE, INIT_FIREWALL_SH } from '../lib/templates.js';
 
 interface InitOptions {
   force?: boolean;
@@ -34,26 +34,9 @@ export async function init(options: InitOptions): Promise<void> {
     // Write template files
     await fs.writeFile(path.join(devcontainerPath, 'devcontainer.json'), DEVCONTAINER_JSON);
     await fs.writeFile(path.join(devcontainerPath, 'Dockerfile'), DOCKERFILE);
-    await fs.writeFile(path.join(devcontainerPath, 'docker-compose.yml'), DOCKER_COMPOSE_YML);
+    await fs.writeFile(path.join(devcontainerPath, 'init-firewall.sh'), INIT_FIREWALL_SH);
     
-    // Update devcontainer.json with workspace folder
-    spinner.text = 'Configuring devcontainer.json...';
-    const devcontainerJsonPath = path.join(devcontainerPath, 'devcontainer.json');
-    const devcontainerJson = await fs.readJson(devcontainerJsonPath);
-    
-    const workspaceName = fs.getBaseName(currentDir);
-    devcontainerJson.workspaceFolder = `/workspaces/${workspaceName}`;
-    
-    await fs.writeJson(devcontainerJsonPath, devcontainerJson);
-    
-    // Update docker-compose.yml with workspace folder name
-    spinner.text = 'Configuring docker-compose.yml...';
-    const dockerComposePath = path.join(devcontainerPath, 'docker-compose.yml');
-    let dockerComposeContent = await fs.readFile(dockerComposePath);
-    dockerComposeContent = dockerComposeContent.replace(/\${WORKSPACE_FOLDER_NAME}/g, workspaceName);
-    await fs.writeFile(dockerComposePath, dockerComposeContent);
-    
-    // Handle environment variables
+    // Handle environment variables (optional .env file)
     if (options.envFile) {
       spinner.text = 'Copying environment file...';
       const envPath = path.join(devcontainerPath, '.env');
@@ -75,13 +58,14 @@ export async function init(options: InitOptions): Promise<void> {
     
     spinner.succeed('Devcontainer template initialized successfully!');
     console.log(chalk.green('\n✓ Created .devcontainer directory'));
-    console.log(chalk.gray('  - devcontainer.json'));
-    console.log(chalk.gray('  - Dockerfile'));
-    console.log(chalk.gray('  - docker-compose.yml'));
+    console.log(chalk.gray('  - devcontainer.json (with VS Code integration)'));
+    console.log(chalk.gray('  - Dockerfile (Node.js 20 with security tools)'));
+    console.log(chalk.gray('  - init-firewall.sh (network security script)'));
     if (options.env || options.envFile) {
-      console.log(chalk.gray('  - .env'));
+      console.log(chalk.gray('  - .env (environment variables)'));
     }
     console.log(chalk.cyan('\nNext step: Run "yolo start" to launch Claude Code in YOLO mode'));
+    console.log(chalk.cyan('Or run "yolo start --open" to automatically open VS Code'));
     
   } catch (error) {
     spinner.fail('Failed to initialize devcontainer template');

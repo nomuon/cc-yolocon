@@ -34,13 +34,20 @@ export async function stop(options: StopOptions): Promise<void> {
     if (!await docker.containerExists(containerName)) {
       spinner.info(`Container "${containerName}" not found.`);
     } else {
-      // Stop container
+      // Stop and remove container
       spinner.text = 'Stopping devcontainer...';
-      const composeResult = await docker.dockerComposeDown(currentDir);
+      const stopResult = await docker.dockerStopContainer(containerName);
       
-      if (!composeResult.success) {
-        spinner.fail(`Failed to stop devcontainer: ${composeResult.stderr}`);
+      if (!stopResult.success) {
+        spinner.fail(`Failed to stop devcontainer: ${stopResult.stderr}`);
         return;
+      }
+      
+      spinner.text = 'Removing devcontainer...';
+      const removeResult = await docker.dockerRemoveContainer(containerName);
+      
+      if (!removeResult.success) {
+        spinner.warn(`Failed to remove devcontainer: ${removeResult.stderr}`);
       }
       
       spinner.succeed(`Container "${containerName}" stopped successfully!`);

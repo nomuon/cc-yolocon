@@ -3,11 +3,13 @@ import ora from 'ora';
 import path from 'path';
 import * as fs from '../lib/fs.js';
 import * as docker from '../lib/docker.js';
+import * as vscode from '../lib/vscode.js';
 
 interface StartOptions {
   name: string;
   mode: 'yolo' | 'normal';
   wait?: boolean;
+  open?: boolean;
 }
 
 export async function start(options: StartOptions): Promise<void> {
@@ -48,13 +50,29 @@ export async function start(options: StartOptions): Promise<void> {
       return;
     }
     
-    // Start devcontainer
-    spinner.text = 'Starting devcontainer...';
-    const composeResult = await docker.dockerComposeUp(currentDir, true);
+    // Build and start devcontainer
+    spinner.text = 'Building devcontainer image...';
+    const buildResult = await docker.dockerBuildDevcontainer(currentDir, containerName);
     
-    if (!composeResult.success) {
-      spinner.fail(`Failed to start devcontainer: ${composeResult.stderr}`);
+    if (!buildResult.success) {
+      spinner.fail(`Failed to build devcontainer: ${buildResult.stderr}`);
       return;
+    }
+    
+    spinner.text = 'Starting devcontainer...';
+    const runResult = await docker.dockerRunDevcontainer(currentDir, containerName);
+    
+    if (!runResult.success) {
+      spinner.fail(`Failed to start devcontainer: ${runResult.stderr}`);
+      return;
+    }
+    
+    // Execute post-create command (firewall setup)
+    spinner.text = 'Setting up firewall...';
+    const postCreateResult = await docker.dockerExecPostCreate(containerName);
+    
+    if (!postCreateResult.success) {
+      spinner.warn(`Failed to setup firewall: ${postCreateResult.stderr}`);
     }
     
     // Wait for container to be ready
@@ -91,7 +109,35 @@ export async function start(options: StartOptions): Promise<void> {
     spinner.succeed('Claude Code environment started successfully!');
     console.log(chalk.green(`\n✓ Container "${containerName}" is running`));
     console.log(chalk.green(`✓ Claude Code started in ${options.mode} mode`));
+    
+    // Open in VS Code if requested
+    if (options.open) {
+      spinner.start('Opening VS Code...');
+      
+      if (!await vscode.isVSCodeAvailable()) {
+        spinner.warn('VS Code is not available. Install VS Code and ensure "code" command is in PATH.');
+      } else {
+        const workspacePath = vscode.getContainerWorkspacePath(currentDir);
+        const success = await vscode.openInVSCode({
+          containerName,
+          workspacePath,
+          newWindow: true, // startコマンドからは新しいウィンドウで開く
+          wait: false
+        });
+        
+        if (success) {
+          spinner.succeed('VS Code opened successfully!');
+          console.log(chalk.green(`✓ Opened in VS Code: ${workspacePath}`));
+        } else {
+          spinner.warn('Failed to open VS Code');
+        }
+      }
+    }
+    
     console.log(chalk.cyan('\nTo stop: Run "yolo stop"'));
+    if (!options.open) {
+      console.log(chalk.cyan('To open in VS Code: Run "yolo open"'));
+    }
     
   } catch (error) {
     spinner.fail('Failed to start Claude Code environment');

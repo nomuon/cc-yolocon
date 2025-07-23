@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import { init } from './commands/init.js';
 import { start } from './commands/start.js';
 import { stop } from './commands/stop.js';
+import { open } from './commands/open.js';
 
 const program = new Command();
 
@@ -35,9 +36,25 @@ program
   .option('--name <container-name>', 'Container name', 'claude-yolo')
   .option('--mode <mode>', 'Launch mode (yolo|normal)', 'yolo')
   .option('--wait', 'Wait for startup completion')
+  .option('--open', 'Open VS Code after starting')
   .action(async (options) => {
     try {
       await start(options);
+    } catch (error) {
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('open')
+  .description('Open devcontainer in VS Code')
+  .option('--name <container-name>', 'Container name', 'claude-yolo')
+  .option('--mode <mode>', 'Claude Code mode (yolo|normal)', 'yolo')
+  .option('--no-new-window', 'Open in existing VS Code window instead of new window')
+  .action(async (options) => {
+    try {
+      await open(options);
     } catch (error) {
       console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
       process.exit(1);
