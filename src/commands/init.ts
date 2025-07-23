@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import path from 'path';
 import * as fs from '../lib/fs.js';
+import { DEVCONTAINER_JSON, DOCKERFILE, DOCKER_COMPOSE_YML } from '../lib/templates.js';
 
 interface InitOptions {
   force?: boolean;
@@ -26,10 +27,14 @@ export async function init(options: InitOptions): Promise<void> {
       await fs.removeDirectory(devcontainerPath);
     }
     
-    // Copy template files
-    spinner.text = 'Copying devcontainer template...';
-    const templatePath = path.join(path.dirname(import.meta.path), '..', '..', '.devcontainer');
-    await fs.copyDirectory(templatePath, devcontainerPath);
+    // Create template files from embedded templates
+    spinner.text = 'Creating devcontainer template...';
+    await fs.ensureDirectory(devcontainerPath);
+    
+    // Write template files
+    await fs.writeFile(path.join(devcontainerPath, 'devcontainer.json'), DEVCONTAINER_JSON);
+    await fs.writeFile(path.join(devcontainerPath, 'Dockerfile'), DOCKERFILE);
+    await fs.writeFile(path.join(devcontainerPath, 'docker-compose.yml'), DOCKER_COMPOSE_YML);
     
     // Update devcontainer.json with workspace folder
     spinner.text = 'Configuring devcontainer.json...';
