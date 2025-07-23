@@ -117,7 +117,7 @@ export async function start(options: StartOptions): Promise<void> {
       if (!await vscode.isVSCodeAvailable()) {
         spinner.warn('VS Code is not available. Install VS Code and ensure "code" command is in PATH.');
       } else {
-        const workspacePath = vscode.getContainerWorkspacePath(currentDir);
+        const workspacePath = vscode.getContainerWorkspacePath();
         const success = await vscode.openInVSCode({
           containerName,
           workspacePath,

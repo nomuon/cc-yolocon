@@ -65,7 +65,7 @@ export async function open(options: OpenOptions): Promise<void> {
     
     // Open in VS Code
     spinner.text = 'Opening VS Code...';
-    const workspacePath = vscode.getContainerWorkspacePath(currentDir);
+    const workspacePath = vscode.getContainerWorkspacePath();
     const success = await vscode.openInVSCode({
       containerName,
       workspacePath,

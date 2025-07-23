@@ -1,5 +1,4 @@
 import { spawn } from 'bun';
-import path from 'path';
 import * as docker from './docker.js';
 
 interface VSCodeOptions {
@@ -87,10 +86,9 @@ export async function isVSCodeAvailable(): Promise<boolean> {
 
 /**
  * Devcontainerのワークスペースパスを取得
- * @param projectPath - プロジェクトのローカルパス
  * @returns コンテナ内のワークスペースパス
  */
-export function getContainerWorkspacePath(projectPath: string): string {
+export function getContainerWorkspacePath(): string {
   return `/workspace`;
 }
 

@@ -5,6 +5,7 @@ import { init } from './commands/init.js';
 import { start } from './commands/start.js';
 import { stop } from './commands/stop.js';
 import { open } from './commands/open.js';
+import { status } from './commands/status.js';
 
 const program = new Command();
 
@@ -69,6 +70,19 @@ program
   .action(async (options) => {
     try {
       await stop(options);
+    } catch (error) {
+      console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('status')
+  .description('Show Claude Code environment status')
+  .option('--name <container-name>', 'Container name', 'claude-yolo')
+  .action(async (options) => {
+    try {
+      await status(options);
     } catch (error) {
       console.error(chalk.red('Error:'), error instanceof Error ? error.message : error);
       process.exit(1);
