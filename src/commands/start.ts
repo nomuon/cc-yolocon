@@ -30,14 +30,15 @@ export async function start(options: StartOptions): Promise<void> {
       return;
     }
     
-    // Check if container is already running
-    if (await docker.isContainerRunning(options.name)) {
-      spinner.info(`Container "${options.name}" is already running.`);
+    // Check if container is already running (handle devcontainer naming pattern)
+    const containerName = `devcontainer-${options.name}-1`;
+    if (await docker.isContainerRunning(containerName)) {
+      spinner.info(`Container "${containerName}" is already running.`);
       
       // Start Claude Code if needed
       spinner.start(`Starting Claude Code in ${options.mode} mode...`);
-      const claudeCommand = options.mode === 'yolo' ? ['claude-code', '--yolo'] : ['claude-code'];
-      const execResult = await docker.dockerExec(options.name, claudeCommand, true);
+      const claudeCommand = options.mode === 'yolo' ? ['bash', '-c', 'export PATH="~/.local/bin:$PATH" && claude --yolo'] : ['bash', '-c', 'export PATH="~/.local/bin:$PATH" && claude'];
+      const execResult = await docker.dockerExec(containerName, claudeCommand, true);
       
       if (execResult.success) {
         spinner.succeed(`Claude Code started in ${options.mode} mode!`);
@@ -61,7 +62,7 @@ export async function start(options: StartOptions): Promise<void> {
       spinner.text = 'Waiting for container to be ready...';
       let retries = 30; // 30 seconds timeout
       while (retries > 0) {
-        if (await docker.isContainerRunning(options.name)) {
+        if (await docker.isContainerRunning(containerName)) {
           break;
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -79,8 +80,8 @@ export async function start(options: StartOptions): Promise<void> {
     
     // Start Claude Code
     spinner.text = `Starting Claude Code in ${options.mode} mode...`;
-    const claudeCommand = options.mode === 'yolo' ? ['claude-code', '--yolo'] : ['claude-code'];
-    const execResult = await docker.dockerExec(options.name, claudeCommand, true);
+    const claudeCommand = options.mode === 'yolo' ? ['bash', '-c', 'export PATH="~/.local/bin:$PATH" && claude --yolo'] : ['bash', '-c', 'export PATH="~/.local/bin:$PATH" && claude'];
+    const execResult = await docker.dockerExec(containerName, claudeCommand, true);
     
     if (!execResult.success) {
       spinner.fail(`Failed to start Claude Code: ${execResult.stderr}`);
@@ -88,7 +89,7 @@ export async function start(options: StartOptions): Promise<void> {
     }
     
     spinner.succeed('Claude Code environment started successfully!');
-    console.log(chalk.green(`\n✓ Container "${options.name}" is running`));
+    console.log(chalk.green(`\n✓ Container "${containerName}" is running`));
     console.log(chalk.green(`✓ Claude Code started in ${options.mode} mode`));
     console.log(chalk.cyan('\nTo stop: Run "yolo stop"'));
     

@@ -29,9 +29,10 @@ export async function stop(options: StopOptions): Promise<void> {
       return;
     }
     
-    // Check if container exists
-    if (!await docker.containerExists(options.name)) {
-      spinner.info(`Container "${options.name}" not found.`);
+    // Check if container exists (handle devcontainer naming pattern)
+    const containerName = `devcontainer-${options.name}-1`;
+    if (!await docker.containerExists(containerName)) {
+      spinner.info(`Container "${containerName}" not found.`);
     } else {
       // Stop container
       spinner.text = 'Stopping devcontainer...';
@@ -42,7 +43,7 @@ export async function stop(options: StopOptions): Promise<void> {
         return;
       }
       
-      spinner.succeed(`Container "${options.name}" stopped successfully!`);
+      spinner.succeed(`Container "${containerName}" stopped successfully!`);
     }
     
     // Clean up .devcontainer if requested

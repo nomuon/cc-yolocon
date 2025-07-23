@@ -6,7 +6,7 @@ export const DEVCONTAINER_JSON = `{
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": "true",
-      "username": "vscode",
+      "username": "node",
       "userUid": "1000",
       "userGid": "1000",
       "upgradePackages": "false"
@@ -18,8 +18,8 @@ export const DEVCONTAINER_JSON = `{
       "version": "lts"
     }
   },
-  "remoteUser": "vscode",
-  "postCreateCommand": "npm install -g claude-code",
+  "remoteUser": "node",
+  "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && echo 'export PATH=\"~/.local/bin:$PATH\"' >> ~/.bashrc",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -88,34 +88,35 @@ RUN curl -fsSL https://bun.sh/install | bash \\
     && mv /root/.bun /usr/local/bun \\
     && ln -s /usr/local/bun/bin/bun /usr/local/bin/bun
 
-# Create a non-root user if not exists
-ARG USERNAME=vscode
+# Use existing node user (UID 1000) from base image
+ARG USERNAME=node
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-RUN if ! id -u $USERNAME > /dev/null 2>&1; then \\
-    groupadd --gid $USER_GID $USERNAME \\
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \\
-    && apt-get update \\
+# Setup sudo for existing node user
+RUN apt-get update \\
     && apt-get install -y sudo \\
     && echo $USERNAME ALL=\\(root\\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \\
-    && chmod 0440 /etc/sudoers.d/$USERNAME; \\
-    fi
+    && chmod 0440 /etc/sudoers.d/$USERNAME \\
+    && apt-get clean \\
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the default user
 USER $USERNAME`;
 
-export const DOCKER_COMPOSE_YML = `version: '3.8'
-
-services:
+export const DOCKER_COMPOSE_YML = `services:
   claude-yolo:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        USERNAME: node
+        USER_UID: 1000
+        USER_GID: 1000
     volumes:
       - ..:/workspaces/\${WORKSPACE_FOLDER_NAME}:cached
-      - ~/.gitconfig:/home/vscode/.gitconfig:ro
-      - ~/.ssh:/home/vscode/.ssh:ro
+      - ~/.gitconfig:/home/node/.gitconfig:ro
+      - ~/.ssh:/home/node/.ssh:ro
     command: sleep infinity
     environment:
       - WORKSPACE_FOLDER_NAME=\${WORKSPACE_FOLDER_NAME}
