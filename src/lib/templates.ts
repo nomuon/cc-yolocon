@@ -19,7 +19,7 @@ export const DEVCONTAINER_JSON = `{
     }
   },
   "remoteUser": "node",
-  "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && echo 'export PATH=\"~/.local/bin:$PATH\"' >> ~/.bashrc",
+  "postCreateCommand": "curl -fsSL https://claude.ai/install.sh | bash && echo 'export PATH=/home/node/.local/bin:$PATH' >> ~/.bashrc",
   "customizations": {
     "vscode": {
       "extensions": [
