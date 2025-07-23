@@ -35,8 +35,7 @@ export async function openInVSCode(options: VSCodeOptions): Promise<boolean> {
     }
 
     // VS CodeでDevcontainerを開く
-    const remoteUri = `containers-existing+${options.containerName}`;
-    const codeArgs = ['code', `--remote`, remoteUri];
+    const codeArgs = ['code'];
     
     // 新しいウィンドウで開く場合
     if (options.newWindow) {
@@ -48,7 +47,13 @@ export async function openInVSCode(options: VSCodeOptions): Promise<boolean> {
       codeArgs.push('--wait');
     }
     
-    codeArgs.push(options.workspacePath);
+    // devcontainer形式でリモート接続
+    const remoteUri = `dev-container+${Buffer.from(JSON.stringify({
+      containerName: options.containerName,
+      workspaceFolder: options.workspacePath
+    })).toString('base64')}`;
+    
+    codeArgs.push('--remote', remoteUri, options.workspacePath);
     
     const codeProcess = spawn(codeArgs, {
       stdio: ['ignore', 'pipe', 'pipe']
@@ -86,8 +91,7 @@ export async function isVSCodeAvailable(): Promise<boolean> {
  * @returns コンテナ内のワークスペースパス
  */
 export function getContainerWorkspacePath(projectPath: string): string {
-  const projectName = path.basename(projectPath);
-  return `/workspaces/${projectName}`;
+  return `/workspace`;
 }
 
 /**
