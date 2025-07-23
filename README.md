@@ -21,14 +21,14 @@ bun install --global cc-yolocon
 現在のディレクトリに `.devcontainer` テンプレートをコピーします。
 
 ```bash
-yolo init
+yolocon init
 
 # 既存の .devcontainer を上書きする場合
-yolo init --force
+yolocon init --force
 
 # 環境変数を設定する場合
-yolo init --env ANTHROPIC_API_KEY=sk-ant-xxx
-yolo init --env-file .env.local
+yolocon init --env ANTHROPIC_API_KEY=sk-ant-xxx
+yolocon init --env-file .env.local
 ```
 
 ⚠️ **注意**: Docker 環境で `localhost:3000` などを使用する場合は、`host.docker.internal:3000` に置き換えてください。
@@ -39,16 +39,16 @@ Devcontainer を起動し、Claude Code を指定モードで起動します。
 
 ```bash
 # YOLO モードで起動（デフォルト）
-yolo start
+yolocon start
 
 # 通常モードで起動
-yolo start --mode normal
+yolocon start --mode normal
 
 # コンテナ名を指定
-yolo start --name my-claude-container
+yolocon start --name my-claude-container
 
 # 起動完了まで待機
-yolo start --wait
+yolocon start --wait
 ```
 
 ### 3. 停止
@@ -57,30 +57,30 @@ Devcontainer を停止します。
 
 ```bash
 # 停止のみ
-yolo stop
+yolocon stop
 
 # .devcontainer ディレクトリも削除
-yolo stop --clean
+yolocon stop --clean
 
 # コンテナ名を指定
-yolo stop --name my-claude-container
+yolocon stop --name my-claude-container
 ```
 
 ## ⚙️ コマンドオプション
 
-### `yolo init`
+### `yolocon init`
 
 - `-f, --force`: 既存の `.devcontainer` を上書き
 - `--env <KEY=VALUE>`: 環境変数を追加（複数指定可）
 - `--env-file <path>`: 環境変数ファイルを指定
 
-### `yolo start`
+### `yolocon start`
 
 - `--name <container-name>`: コンテナ名（デフォルト: `claude-yolo`）
 - `--mode <yolo|normal>`: 起動モード（デフォルト: `yolo`）
 - `--wait`: 起動完了まで待機
 
-### `yolo stop`
+### `yolocon stop`
 
 - `--name <container-name>`: コンテナ名（デフォルト: `claude-yolo`）
 - `-c, --clean`: `.devcontainer` ディレクトリを削除

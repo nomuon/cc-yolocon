@@ -28,7 +28,7 @@ export async function start(options: StartOptions): Promise<void> {
     const devcontainerPath = path.join(currentDir, '.devcontainer');
     
     if (!await fs.pathExists(devcontainerPath)) {
-      spinner.fail('.devcontainer directory not found. Run "yolo init" first.');
+      spinner.fail('.devcontainer directory not found. Run "yolocon init" first.');
       return;
     }
     
@@ -134,9 +134,14 @@ export async function start(options: StartOptions): Promise<void> {
       }
     }
     
-    console.log(chalk.cyan('\nTo stop: Run "yolo stop"'));
+    console.log(chalk.cyan('\nTo stop: Run "yolocon stop"'));
     if (!options.open) {
-      console.log(chalk.cyan('To open in VS Code: Run "yolo open"'));
+      console.log(chalk.cyan('To open in VS Code: Run "yolocon open"'));
+    }
+    
+    // Display YOLO usage instructions for YOLO mode
+    if (options.mode === 'yolo') {
+      console.log(chalk.green('\n🚀 Open VS Code terminal and run `claude --dangerously-skip-permissions` to enjoy YOLO mode!'));
     }
     
   } catch (error) {

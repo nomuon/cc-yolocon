@@ -5,10 +5,11 @@
 	"module": "src/index.ts",
 	"type": "module",
 	"bin": {
-		"yolo": "./dist/index.js"
+		"yolocon": "./dist/index.js"
 	},
 	"scripts": {
 		"build": "bun build src/index.ts --outdir dist --target bun",
+		"link": "bun link",
 		"pack": "bun pm pack",
 		"test": "bun test",
 		"lint": "eslint src --ext .ts",

@@ -34,14 +34,14 @@ export async function open(options: OpenOptions): Promise<void> {
     const devcontainerPath = path.join(currentDir, '.devcontainer');
     
     if (!await fs.pathExists(devcontainerPath)) {
-      spinner.fail('.devcontainer directory not found. Run "yolo init" first.');
+      spinner.fail('.devcontainer directory not found. Run "yolocon init" first.');
       return;
     }
     
     // Check if container is running
     const containerName = `devcontainer-${options.name}-1`;
     if (!await docker.isContainerRunning(containerName)) {
-      spinner.fail(`Container "${containerName}" is not running. Run "yolo start" first.`);
+      spinner.fail(`Container "${containerName}" is not running. Run "yolocon start" first.`);
       return;
     }
     

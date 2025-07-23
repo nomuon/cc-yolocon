@@ -64,8 +64,8 @@ export async function init(options: InitOptions): Promise<void> {
     if (options.env || options.envFile) {
       console.log(chalk.gray('  - .env (environment variables)'));
     }
-    console.log(chalk.cyan('\nNext step: Run "yolo start" to launch Claude Code in YOLO mode'));
-    console.log(chalk.cyan('Or run "yolo start --open" to automatically open VS Code'));
+    console.log(chalk.cyan('\nNext step: Run "yolocon start" to launch Claude Code in YOLO mode'));
+    console.log(chalk.cyan('Or run "yolocon start --open" to automatically open VS Code'));
     
   } catch (error) {
     spinner.fail('Failed to initialize devcontainer template');

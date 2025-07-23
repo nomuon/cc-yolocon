@@ -142,9 +142,9 @@ bun run src/index.ts
 
 The tool provides three main commands implemented as separate modules:
 
-- `yolo init`: Copies .devcontainer template and configures environment
-- `yolo start`: Launches devcontainer and starts Claude Code
-- `yolo stop`: Stops devcontainer and optionally cleans up
+- `yolocon init`: Copies .devcontainer template and configures environment
+- `yolocon start`: Launches devcontainer and starts Claude Code
+- `yolocon stop`: Stops devcontainer and optionally cleans up
 
 ### Key Implementation Details
 

@@ -9,7 +9,7 @@ import { open } from './commands/open.js';
 const program = new Command();
 
 program
-  .name('yolo')
+  .name('yolocon')
   .description('Claude Code YOLO mode CLI tool with Devcontainer isolation')
   .version('1.0.0');
 

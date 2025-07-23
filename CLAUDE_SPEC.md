@@ -24,9 +24,9 @@
 
 - **CLI コマンド**
 
-  - `yolo init`
-  - `yolo start`
-  - `yolo stop`
+  - `yolocon init`
+  - `yolocon start`
+  - `yolocon stop`
 
 ---
 
@@ -41,7 +41,7 @@ bun install --global cc-yolocon
 
 ## ⚙️ CLI コマンド仕様
 
-### 1. `yolo init`
+### 1. `yolocon init`
 
 - **説明**: `.devcontainer` テンプレートをコピーし、Claude Code 用環境変数を設定
 - **オプション**
@@ -101,7 +101,7 @@ bun install --global cc-yolocon
 5. `--env` および `--env-file` オプションは引き続き利用可能。これらが指定された場合、 `containerEnv` の自動マッピングよりも優先して適用される（同一キーは上書き）。  
    -> docker を利用するため PROXY などで `localhost:3000` を指定する場合、 `host.docker.internal:3000` とすることをユーザーに伝える
 
-### 2. `yolo start` 
+### 2. `yolocon start` 
 
 - **説明**: Devcontainer を起動し、Claude Code を指定モードで起動
 - **オプション**
@@ -120,7 +120,7 @@ bun install --global cc-yolocon
 
   3. 起動完了メッセージ表示
 
-### 3. `yolo stop`
+### 3. `yolocon stop`
 
 - **説明**: Devcontainer を停止し、設定ファイルを削除
 - **オプション**
@@ -142,9 +142,9 @@ bun install --global cc-yolocon
 cc-yolocon/
 ├── src/
 │   ├── commands/
-│   │   ├── init.ts       # yolo init ロジック
-│   │   ├── start.ts      # yolo start ロジック
-│   │   └── stop.ts       # yolo stop ロジック
+│   │   ├── init.ts       # yolocon init ロジック
+│   │   ├── start.ts      # yolocon start ロジック
+│   │   └── stop.ts       # yolocon stop ロジック
 │   ├── lib/
 │   │   ├── fs.ts         # ファイル操作ユーティリティ
 │   │   └── docker.ts     # Docker／Devcontainer 操作ユーティリティ
@@ -191,28 +191,28 @@ cc-yolocon/
 1. **初期化**
 
    ```bash
-   yolo init
+   yolocon init
    # ⇒ ./.devcontainer/ が生成される
    ```
 
 2. **起動 (YOLO モード)**
 
    ```bash
-   yolo start --mode yolo --wait
+   yolocon start --mode yolocon --wait
    # ⇒ docker compose up → Claude Code (--yolo) 起動
    ```
 
 3. **起動 (通常モード)**
 
    ```bash
-   yolo start --mode normal --wait
+   yolocon start --mode normal --wait
    # ⇒ docker compose up → Claude Code (通常) 起動
    ```
 
 4. **停止 & クリーン**
 
    ```bash
-   yolo stop --clean
+   yolocon stop --clean
    # ⇒ docker compose down → .devcontainer/ を削除
    ```
 
@@ -227,6 +227,6 @@ cc-yolocon/
 
 ## 📈 今後の拡張案
 
-- `yolo status`：コンテナ稼働状況を出力
-- `yolo update`：テンプレート最新版への同期
+- `yolocon status`：コンテナ稼働状況を出力
+- `yolocon update`：テンプレート最新版への同期
 - 複数プロジェクト対応のワークスペース管理
