@@ -114,7 +114,7 @@ export async function dockerRunDevcontainer(projectPath: string, containerName: 
     '--cap-add=NET_RAW',
     '-v', `${projectPath}:/workspace:cached`,
     '-v', `claude-code-bashhistory-${containerName}:/commandhistory`,
-    '-v', `claude-code-config-${containerName}:/home/node/.claude`,
+    '-v', `${process.env.HOME}/.claude:/home/node/.claude:cached`,
     '-e', `NODE_OPTIONS=--max-old-space-size=4096`,
     '-e', `CLAUDE_CONFIG_DIR=/home/node/.claude`,
     '-e', `POWERLEVEL9K_DISABLE_GITSTATUS=true`

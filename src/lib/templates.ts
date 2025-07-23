@@ -156,7 +156,7 @@ export const DEVCONTAINER_JSON = `{
   "remoteUser": "node",
   "mounts": [
     "source=claude-code-bashhistory-\${devcontainerId},target=/commandhistory,type=volume",
-    "source=claude-code-config-\${devcontainerId},target=/home/node/.claude,type=volume"
+    "source=\${localEnv:HOME}/.claude,target=/home/node/.claude,type=bind,consistency=cached"
   ],
   "remoteEnv": {
     "NODE_OPTIONS": "--max-old-space-size=4096",

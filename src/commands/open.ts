@@ -82,6 +82,8 @@ export async function open(options: OpenOptions): Promise<void> {
     console.log(chalk.green(`✓ Opened container "${containerName}" in new VS Code window`));
     console.log(chalk.green(`✓ Claude Code is ready in ${mode} mode`));
     console.log(chalk.cyan(`✓ Workspace: ${workspacePath}`));
+    console.log(chalk.gray('\n💡 Tip: You can also use VS Code Command Palette (Cmd/Ctrl+Shift+P) →'));
+    console.log(chalk.gray('   "Dev Containers: Reopen in Container" to open the container'));
     
   } catch (error) {
     spinner.fail('Failed to open devcontainer in VS Code');

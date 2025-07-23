@@ -137,6 +137,8 @@ export async function start(options: StartOptions): Promise<void> {
     console.log(chalk.cyan('\nTo stop: Run "yolocon stop"'));
     if (!options.open) {
       console.log(chalk.cyan('To open in VS Code: Run "yolocon open"'));
+      console.log(chalk.gray('\n💡 Tip: You can also use VS Code Command Palette (Cmd/Ctrl+Shift+P) →'));
+      console.log(chalk.gray('   "Dev Containers: Reopen in Container" to open the container'));
     }
     
     // Display YOLO usage instructions for YOLO mode
