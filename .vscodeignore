@@ -4,7 +4,6 @@ tsconfig.json
 
 # Development files
 .devcontainer/**
-node_modules/**
 
 # Documentation files (keep only README.md)
 CLAUDE.md
