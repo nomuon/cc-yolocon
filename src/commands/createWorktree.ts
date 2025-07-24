@@ -33,7 +33,7 @@ export async function createWorktree(
     }
 
     const defaultPath = path.join(
-      path.dirname(workspaceFolder.uri.fsPath),
+      workspaceFolder.uri.fsPath,
       branchName.replace(/\//g, '-'),
     );
     const worktreePath = await vscode.window.showInputBox({

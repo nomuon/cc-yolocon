@@ -33,7 +33,8 @@
       {
         "command": "claude.createWorktree",
         "title": "Create New Worktree",
-        "category": "Claude"
+        "category": "Claude",
+        "icon": "$(add)"
       },
       {
         "command": "claude.mergeWorktree",
@@ -68,7 +69,8 @@
       "view/title": [
         {
           "command": "claude.createWorktree",
-          "when": "view == worktreeView"
+          "when": "view == worktreeView",
+          "group": "navigation"
         },
         {
           "command": "claude.refreshWorktrees",
@@ -127,5 +129,6 @@
     "vscode"
   ],
   "author": "",
+  "publisher": "nomuon",
   "license": "MIT"
 }
