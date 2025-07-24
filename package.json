@@ -3,6 +3,7 @@
   "displayName": "cc-YOLOCON",
   "description": "Manage Git worktrees for Claude Code YOLO mode safely and easily",
   "version": "0.0.1",
+  "icon": "icon.png",
   "engines": {
     "vscode": "^1.89.0"
   },
