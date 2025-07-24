@@ -3,7 +3,6 @@ import * as docker from './docker.js';
 
 interface VSCodeOptions {
   containerName: string;
-  hostPath: string;
   workspacePath: string;
   newWindow?: boolean;
   wait?: boolean;
@@ -47,10 +46,10 @@ export async function openInVSCode(options: VSCodeOptions): Promise<boolean> {
       codeArgs.push('--wait');
     }
     
-    // devcontainer形式でリモート接続
-    // VS Codeはhostパスを16進数でエンコードして期待している
-    const hexPath = Buffer.from(options.hostPath).toString('hex');
-    const remoteUri = `vscode-remote://dev-container+${hexPath}${options.workspacePath}`;
+    // 既存のコンテナにアタッチする形式でリモート接続
+    // VS Codeは既存コンテナにアタッチする際はコンテナ名を16進数でエンコードする
+    const hexContainerName = Buffer.from(options.containerName).toString('hex');
+    const remoteUri = `vscode-remote://attached-container+${hexContainerName}${options.workspacePath}`;
     
     codeArgs.push('--folder-uri', remoteUri);
     

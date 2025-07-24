@@ -120,7 +120,6 @@ export async function start(options: StartOptions): Promise<void> {
         const workspacePath = vscode.getContainerWorkspacePath();
         const success = await vscode.openInVSCode({
           containerName,
-          hostPath: currentDir,
           workspacePath,
           newWindow: true, // startコマンドからは新しいウィンドウで開く
           wait: false
