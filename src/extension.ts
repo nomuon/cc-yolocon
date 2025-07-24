@@ -9,7 +9,7 @@ import { openWorktreeDevcontainer } from './commands/openWorktreeDevcontainer';
 import { generateMainDevcontainer } from './commands/generateMainDevcontainer';
 
 export function activate(context: vscode.ExtensionContext): void {
-  console.log('Claude Worktree Manager is now active!');
+  console.log('cc-YOLOCON is now active!');
 
   const worktreeProvider = new WorktreeProvider();
 
@@ -48,5 +48,5 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
-  console.log('Claude Worktree Manager has been deactivated');
+  console.log('cc-YOLOCON has been deactivated');
 }

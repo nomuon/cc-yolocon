@@ -1,6 +1,6 @@
 # Developer Guide
 
-Development guide for Claude Worktree Manager VS Code extension.
+Development guide for cc-YOLOCON VS Code extension.
 
 ## Project Structure
 
@@ -153,7 +153,7 @@ const ENV_KEYS = [
 ### Manual Testing
 
 1. Open a Git repository in VS Code
-2. Open the Claude Worktree Manager sidebar
+2. Open the cc-YOLOCON sidebar
 3. Test each command:
    - Create worktree with/without devcontainer
    - Merge worktree (create test branch first)

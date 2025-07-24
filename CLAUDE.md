@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Claude Worktree Manager is a VS Code extension that provides safe Git worktree management specifically designed for Claude Code YOLO mode. It creates isolated development environments with automatic devcontainer setup and environment variable management.
+cc-YOLOCON is a VS Code extension that provides safe Git worktree management specifically designed for Claude Code YOLO mode. It creates isolated development environments with automatic devcontainer setup and environment variable management.
 
 ## Development Commands
 

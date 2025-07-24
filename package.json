@@ -1,6 +1,6 @@
 {
   "name": "claude-worktree-manager",
-  "displayName": "Claude Worktree Manager",
+  "displayName": "cc-YOLOCON",
   "description": "Manage Git worktrees for Claude Code YOLO mode safely and easily",
   "version": "0.0.1",
   "engines": {
@@ -16,7 +16,7 @@
       "activitybar": [
         {
           "id": "claude-worktree",
-          "title": "Claude Worktree Manager",
+          "title": "cc-YOLOCON",
           "icon": "$(git-branch)"
         }
       ]
@@ -27,7 +27,7 @@
           "id": "worktreeView",
           "name": "Worktrees",
           "icon": "$(git-branch)",
-          "contextualTitle": "Claude Worktree Manager"
+          "contextualTitle": "cc-YOLOCON"
         }
       ]
     },

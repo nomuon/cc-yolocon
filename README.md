@@ -1,4 +1,4 @@
-# Claude Worktree Manager
+# cc-YOLOCON
 
 🚀 **Vibe Coding with Claude Code!** Experience the ultimate development flow with safe YOLO mode through the perfect combination of **devcontainers** and **Git worktrees**.
 
@@ -6,7 +6,7 @@ VS Code extension for managing Git worktrees for Claude Code YOLO mode safely an
 
 ## Overview
 
-Claude Worktree Manager unlocks the power of **Vibe Coding** by combining two best practices:
+cc-YOLOCON unlocks the power of **Vibe Coding** by combining two best practices:
 - 🐳 **Devcontainers** for safe Claude Code YOLO mode environments
 - 🌳 **Git Worktrees** for seamless parallel development workflows
 
@@ -29,7 +29,7 @@ This extension provides an intuitive sidebar interface for worktree operations w
 
 2. **Open a Git Repository**
    - Open any Git repository in VS Code
-   - The Claude Worktree Manager sidebar will appear
+   - The cc-YOLOCON sidebar will appear
 
 3. **Create Your First Worktree**
    - Click "Create New Worktree" in the sidebar
@@ -55,10 +55,10 @@ This extension provides an intuitive sidebar interface for worktree operations w
 
 ## Sidebar Interface
 
-The extension adds a "Claude Worktree Manager" view to your VS Code sidebar:
+The extension adds a "cc-YOLOCON" view to your VS Code sidebar:
 
 ```
-Claude Worktree Manager
+cc-YOLOCON
 ├─ 🏠 workspace (Main)     develop • Main     [🐳][⚙️]
 ├─ 🌿 feature-auth         feature/auth • Worktree     [🗑️][⇄][🐳]
 └─ ✅ bugfix-login         bugfix/login • Worktree     [🗑️][⇄][🐳]
@@ -127,13 +127,13 @@ MIT License - see LICENSE file for details.
 
 ## 日本語紹介
 
-### Claude Worktree Manager について
+### cc-YOLOCON について
 
 🚀 **Claude Code で Vibe Coding を体験しよう！** **devcontainer** と **Git worktree** の完璧な組み合わせで、安全な YOLO モードによる究極の開発フローを実現します。
 
 ### 概要
 
-Claude Worktree Manager は **Vibe Coding** の力を解放する2つのベストプラクティスを組み合わせています：
+cc-YOLOCON は **Vibe Coding** の力を解放する2つのベストプラクティスを組み合わせています：
 - 🐳 **Devcontainer**: Claude Code の YOLO モードを安全に利用するための分離環境
 - 🌳 **Git Worktree**: シームレスな並列開発ワークフローの実現
 
@@ -164,4 +164,4 @@ Claude Worktree Manager は **Vibe Coding** の力を解放する2つのベス�
 - Git がPATHで利用可能
 - Node.js 18+ (devcontainer機能用)
 
-Claude Worktree Manager で、安全で創造的な開発体験をお楽しみください！
+cc-YOLOCON で、安全で創造的な開発体験をお楽しみください！

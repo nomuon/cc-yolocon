@@ -84,7 +84,7 @@ claude-worktree-manager/
 ### 3.4 サイドバー UI (Tree View)
 
 ```
-Claude Worktree Manager
+cc-YOLOCON
 ├─ Existing Worktrees
 │   ├─ feature/foo        (path)   [🗑️][⇄]
 │   └─ bugfix/bar         (path)   [🗑️][⇄]
