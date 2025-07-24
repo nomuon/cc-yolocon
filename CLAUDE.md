@@ -35,6 +35,13 @@ npm run package
 npm run publish
 ```
 
+**VS Code Development:**
+```bash
+# Debug extension in VS Code
+# Press F5 to launch Extension Development Host
+# Test extension in the new VS Code window
+```
+
 ## Architecture Overview
 
 ### Core Components
@@ -84,6 +91,16 @@ Templates in `/templates/` directory:
 - `init-firewall.sh`: Firewall configuration script
 - `CLAUDE.md`: Template for new worktrees
 
+### Environment Variable Management
+
+The extension handles 140+ environment variables automatically:
+- **Claude/Anthropic**: `ANTHROPIC_API_KEY`, `CLAUDE_API_KEY`, etc.
+- **Cloud Providers**: AWS, Azure, Google Cloud credentials
+- **Development Tools**: GitHub, Docker, database URLs
+- **Third-party Services**: Stripe, Twilio, Slack, etc.
+
+Environment variables use `${localEnv:VAR_NAME}` syntax in devcontainer configurations to pass through local variables safely.
+
 ## Key Technical Decisions
 
 **Path Resolution:** Uses `path.resolve()` to distinguish main repository from worktrees by comparing absolute paths.
@@ -94,6 +111,8 @@ Templates in `/templates/` directory:
 
 **Isolated Environments:** Each worktree can have independent devcontainer configurations for true isolation.
 
+**ShellJS Integration:** Uses `shelljs` for reliable Git command execution across platforms.
+
 ## Development Notes
 
 - Uses `shelljs` for Git command execution with proper error handling
@@ -101,3 +120,5 @@ Templates in `/templates/` directory:
 - Vitest for testing framework
 - All async operations use VS Code's progress reporting for user feedback
 - Extension follows VS Code's activation event patterns for performance
+- Main entry point is `./dist/extension.js` compiled from TypeScript
+- Icons: Uses custom SVG icon (`./resources/cc-yolocon.svg`) for sidebar and PNG (`icon.png`) for marketplace
