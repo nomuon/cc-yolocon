@@ -17,7 +17,7 @@
         {
           "id": "claude-worktree",
           "title": "cc-YOLOCON",
-          "icon": "$(git-branch)"
+          "icon": "./resources/cc-yolocon.svg"
         }
       ]
     },
@@ -26,7 +26,7 @@
         {
           "id": "worktreeView",
           "name": "Worktrees",
-          "icon": "$(git-branch)",
+          "icon": "./resources/cc-yolocon.svg",
           "contextualTitle": "cc-YOLOCON"
         }
       ]
