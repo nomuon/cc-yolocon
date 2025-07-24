@@ -1,0 +1,131 @@
+{
+  "name": "claude-worktree-manager",
+  "displayName": "Claude Worktree Manager",
+  "description": "Manage Git worktrees for Claude Code YOLO mode safely and easily",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.89.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "claude-worktree",
+          "title": "Claude Worktree Manager",
+          "icon": "$(git-branch)"
+        }
+      ]
+    },
+    "views": {
+      "claude-worktree": [
+        {
+          "id": "worktreeView",
+          "name": "Worktrees",
+          "icon": "$(git-branch)",
+          "contextualTitle": "Claude Worktree Manager"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "claude.createWorktree",
+        "title": "Create New Worktree",
+        "category": "Claude"
+      },
+      {
+        "command": "claude.mergeWorktree",
+        "title": "Merge Worktree",
+        "category": "Claude",
+        "icon": "$(git-merge)"
+      },
+      {
+        "command": "claude.deleteWorktree",
+        "title": "Delete Worktree",
+        "category": "Claude",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "claude.generateDevcontainer",
+        "title": "Generate .devcontainer",
+        "category": "Claude"
+      },
+      {
+        "command": "claude.openDevcontainer",
+        "title": "Open in Devcontainer",
+        "category": "Claude"
+      },
+      {
+        "command": "claude.refreshWorktrees",
+        "title": "Refresh Worktrees",
+        "category": "Claude",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "claude.createWorktree",
+          "when": "view == worktreeView"
+        },
+        {
+          "command": "claude.refreshWorktrees",
+          "when": "view == worktreeView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "claude.mergeWorktree",
+          "when": "view == worktreeView && viewItem == worktree",
+          "group": "inline"
+        },
+        {
+          "command": "claude.deleteWorktree",
+          "when": "view == worktreeView && viewItem == worktree",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vitest",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "20.x",
+    "@types/shelljs": "^0.8.15",
+    "@types/vscode": "^1.89.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/vsce": "^2.24.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3",
+    "vitest": "^1.3.1"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0",
+    "shelljs": "^0.8.5"
+  },
+  "keywords": [
+    "claude",
+    "worktree",
+    "git",
+    "devcontainer",
+    "vscode"
+  ],
+  "author": "",
+  "license": "MIT"
+}
