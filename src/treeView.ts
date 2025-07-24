@@ -6,6 +6,7 @@ export interface WorktreeItem {
   path: string;
   branch: string;
   isCurrent: boolean;
+  isMainRepo?: boolean;
 }
 
 export class WorktreeTreeItem extends vscode.TreeItem {
@@ -14,12 +15,35 @@ export class WorktreeTreeItem extends vscode.TreeItem {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
   ) {
     super(worktree.name, collapsibleState);
-    this.tooltip = `${this.worktree.branch} - ${this.worktree.path}`;
-    this.description = this.worktree.path;
-    this.contextValue = 'worktree';
 
+    // ツールチップとdescriptionを設定
+    if (worktree.isMainRepo) {
+      this.tooltip = `${this.worktree.branch} (Main Repository) - ${this.worktree.path}`;
+      this.description = `${this.worktree.branch} • Main`;
+    } else {
+      this.tooltip = `${this.worktree.branch} (Worktree) - ${this.worktree.path}`;
+      this.description = `${this.worktree.branch} • Worktree`;
+    }
+
+    // contextValueを設定（メインリポジトリには一部のアクションを制限）
+    this.contextValue = worktree.isMainRepo ? 'mainRepo' : 'worktree';
+
+    // アイコンを設定
     if (this.worktree.isCurrent) {
-      this.iconPath = new vscode.ThemeIcon('check');
+      this.iconPath = new vscode.ThemeIcon(
+        'check',
+        new vscode.ThemeColor('terminal.ansiGreen'),
+      );
+    } else if (worktree.isMainRepo) {
+      this.iconPath = new vscode.ThemeIcon(
+        'home',
+        new vscode.ThemeColor('terminal.ansiBlue'),
+      );
+    } else {
+      this.iconPath = new vscode.ThemeIcon(
+        'git-branch',
+        new vscode.ThemeColor('terminal.ansiYellow'),
+      );
     }
   }
 }

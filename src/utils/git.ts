@@ -18,11 +18,14 @@ export async function getWorktrees(repoPath: string): Promise<WorktreeItem[]> {
     const worktrees: WorktreeItem[] = [];
     const lines = result.stdout.split('\n').filter((line) => line.trim());
 
-    let currentWorktree: Partial<WorktreeItem> = {};
+    let currentWorktree: Partial<WorktreeItem & { isMainRepo: boolean }> = {};
 
     for (const line of lines) {
       if (line.startsWith('worktree ')) {
         currentWorktree.path = line.substring('worktree '.length);
+        // メインリポジトリかどうかを判定（現在のrepoPathと同じかどうか）
+        currentWorktree.isMainRepo =
+          path.resolve(currentWorktree.path) === path.resolve(repoPath);
       } else if (line.startsWith('branch ')) {
         currentWorktree.branch = line
           .substring('branch '.length)
@@ -31,12 +34,15 @@ export async function getWorktrees(repoPath: string): Promise<WorktreeItem[]> {
         continue;
       } else if (line === '') {
         if (currentWorktree.path && currentWorktree.branch) {
-          const name = path.basename(currentWorktree.path);
+          const name = currentWorktree.isMainRepo
+            ? `${path.basename(currentWorktree.path)} (Main)`
+            : path.basename(currentWorktree.path);
           worktrees.push({
             name,
             path: currentWorktree.path,
             branch: currentWorktree.branch,
             isCurrent: false,
+            isMainRepo: currentWorktree.isMainRepo || false,
           });
         }
         currentWorktree = {};
@@ -44,12 +50,15 @@ export async function getWorktrees(repoPath: string): Promise<WorktreeItem[]> {
     }
 
     if (currentWorktree.path && currentWorktree.branch) {
-      const name = path.basename(currentWorktree.path);
+      const name = currentWorktree.isMainRepo
+        ? `${path.basename(currentWorktree.path)} (Main)`
+        : path.basename(currentWorktree.path);
       worktrees.push({
         name,
         path: currentWorktree.path,
         branch: currentWorktree.branch,
         isCurrent: false,
+        isMainRepo: currentWorktree.isMainRepo || false,
       });
     }
 
@@ -59,7 +68,10 @@ export async function getWorktrees(repoPath: string): Promise<WorktreeItem[]> {
     if (currentBranchResult.code === 0) {
       const currentBranch = currentBranchResult.stdout.trim();
       worktrees.forEach((wt) => {
-        if (wt.branch === currentBranch) {
+        if (
+          wt.branch === currentBranch &&
+          path.resolve(wt.path) === path.resolve(repoPath)
+        ) {
           wt.isCurrent = true;
         }
       });

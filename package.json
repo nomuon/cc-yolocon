@@ -97,7 +97,7 @@
         },
         {
           "command": "claude.openWorktreeDevcontainer",
-          "when": "view == worktreeView && viewItem == worktree",
+          "when": "view == worktreeView && (viewItem == worktree || viewItem == mainRepo)",
           "group": "inline"
         }
       ]
