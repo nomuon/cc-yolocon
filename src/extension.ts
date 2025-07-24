@@ -5,6 +5,7 @@ import { mergeWorktree } from './commands/mergeWorktree';
 import { deleteWorktree } from './commands/deleteWorktree';
 import { generateDevcontainer } from './commands/generateDevcontainer';
 import { openDevcontainer } from './commands/openDevcontainer';
+import { openWorktreeDevcontainer } from './commands/openWorktreeDevcontainer';
 
 export function activate(context: vscode.ExtensionContext): void {
   console.log('Claude Worktree Manager is now active!');
@@ -30,6 +31,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand(
       'claude.openDevcontainer',
       openDevcontainer,
+    ),
+    vscode.commands.registerCommand('claude.openWorktreeDevcontainer', (item) =>
+      openWorktreeDevcontainer(item),
     ),
     vscode.commands.registerCommand('claude.refreshWorktrees', () =>
       worktreeProvider.refresh(),

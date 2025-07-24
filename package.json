@@ -59,6 +59,12 @@
         "category": "Claude"
       },
       {
+        "command": "claude.openWorktreeDevcontainer",
+        "title": "Open in Devcontainer",
+        "category": "Claude",
+        "icon": "$(remote)"
+      },
+      {
         "command": "claude.refreshWorktrees",
         "title": "Refresh Worktrees",
         "category": "Claude",
@@ -86,6 +92,11 @@
         },
         {
           "command": "claude.deleteWorktree",
+          "when": "view == worktreeView && viewItem == worktree",
+          "group": "inline"
+        },
+        {
+          "command": "claude.openWorktreeDevcontainer",
           "when": "view == worktreeView && viewItem == worktree",
           "group": "inline"
         }
