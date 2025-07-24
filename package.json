@@ -54,6 +54,12 @@
         "category": "Claude"
       },
       {
+        "command": "claude.generateMainDevcontainer",
+        "title": "Generate .devcontainer",
+        "category": "Claude",
+        "icon": "$(gear)"
+      },
+      {
         "command": "claude.openDevcontainer",
         "title": "Open in Devcontainer",
         "category": "Claude"
@@ -98,6 +104,11 @@
         {
           "command": "claude.openWorktreeDevcontainer",
           "when": "view == worktreeView && (viewItem == worktree || viewItem == mainRepo)",
+          "group": "inline"
+        },
+        {
+          "command": "claude.generateMainDevcontainer",
+          "when": "view == worktreeView && viewItem == mainRepo",
           "group": "inline"
         }
       ]
