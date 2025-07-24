@@ -1,0 +1,45 @@
+# Source files (keep only dist/)
+src/**
+tsconfig.json
+
+# Development files
+.devcontainer/**
+node_modules/**
+
+# Documentation files (keep only README.md)
+CLAUDE.md
+CLAUDE_SPEC.md
+DEVELOPER.md
+
+# Git files
+.git
+.gitignore
+
+# IDE files
+.vscode/**
+
+# Test files
+**/*.test.*
+**/*.spec.*
+
+# Build artifacts
+*.tsbuildinfo
+
+# NPM
+.npmrc
+package-lock.json
+
+# Temporary files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Editor backup files
+*~
+*.swp
+*.swo
+
+# Templates (keep only what's needed)
+templates/**
