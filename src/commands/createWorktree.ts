@@ -132,26 +132,83 @@ async function generateDevcontainerFiles(worktreePath: string): Promise<void> {
   const devcontainerPath = path.join(worktreePath, '.devcontainer');
   await fs.ensureDir(devcontainerPath);
 
+  // プロジェクトルートのパス（worktreeの親ディレクトリではなく、元のプロジェクトルート）
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (!workspaceFolder) {
+    throw new Error('No workspace folder found');
+  }
+  const projectRootPath = workspaceFolder.uri.fsPath;
+  const projectDevcontainerPath = path.join(projectRootPath, '.devcontainer');
+
+  // プロジェクトルートに .devcontainer が存在しない場合は作成
+  if (!(await fs.pathExists(projectDevcontainerPath))) {
+    await createProjectDevcontainer(projectRootPath);
+  }
+
+  // worktree 用の devcontainer.json を作成（プロジェクトルートの Dockerfile を参照）
+  const templatePath = path.join(__dirname, '..', '..', 'templates');
+  const templateDevcontainerPath = path.join(templatePath, 'devcontainer.json');
+
+  if (await fs.pathExists(templateDevcontainerPath)) {
+    // テンプレートを読み込み
+    const devcontainerJson = await fs.readJson(templateDevcontainerPath);
+
+    // buildセクションを使用してビルドコンテキストを明示的に指定
+    // これにより、すべてのworktreeで同じイメージIDが生成される
+    delete devcontainerJson.dockerFile; // 古い形式を削除
+
+    devcontainerJson.build = {
+      dockerfile: path.join(projectDevcontainerPath, 'Dockerfile'),
+      context: projectDevcontainerPath,
+    };
+
+    // プロジェクト名をベースにしたイメージ名を設定（再利用を促進）
+    const projectName = path.basename(projectRootPath);
+    devcontainerJson.name = `${projectName}-devcontainer`;
+
+    // 環境変数は動的に生成
+    const { generateContainerEnv } = require('../utils/env');
+    devcontainerJson.containerEnv = generateContainerEnv();
+
+    await fs.writeJson(
+      path.join(devcontainerPath, 'devcontainer.json'),
+      devcontainerJson,
+      { spaces: 2 },
+    );
+  }
+}
+
+async function createProjectDevcontainer(
+  projectRootPath: string,
+): Promise<void> {
+  const projectDevcontainerPath = path.join(projectRootPath, '.devcontainer');
   const templatePath = path.join(__dirname, '..', '..', 'templates');
 
-  if (await fs.pathExists(path.join(templatePath, 'devcontainer.json'))) {
+  await fs.ensureDir(projectDevcontainerPath);
+
+  // Dockerfile をコピー
+  const dockerfileSource = path.join(templatePath, 'Dockerfile');
+  if (await fs.pathExists(dockerfileSource)) {
     await fs.copy(
-      path.join(templatePath, 'devcontainer.json'),
-      path.join(devcontainerPath, 'devcontainer.json'),
+      dockerfileSource,
+      path.join(projectDevcontainerPath, 'Dockerfile'),
+      {
+        overwrite: true,
+      },
     );
   }
 
-  if (await fs.pathExists(path.join(templatePath, 'Dockerfile'))) {
+  // init-firewall.sh をコピー
+  const initScriptSource = path.join(templatePath, 'init-firewall.sh');
+  if (await fs.pathExists(initScriptSource)) {
     await fs.copy(
-      path.join(templatePath, 'Dockerfile'),
-      path.join(devcontainerPath, 'Dockerfile'),
+      initScriptSource,
+      path.join(projectDevcontainerPath, 'init-firewall.sh'),
+      { overwrite: true },
     );
-  }
-
-  if (await fs.pathExists(path.join(templatePath, 'init-firewall.sh'))) {
-    await fs.copy(
-      path.join(templatePath, 'init-firewall.sh'),
-      path.join(devcontainerPath, 'init-firewall.sh'),
+    await fs.chmod(
+      path.join(projectDevcontainerPath, 'init-firewall.sh'),
+      '755',
     );
   }
 }
