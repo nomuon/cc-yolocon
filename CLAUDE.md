@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Rule
+
+**回答は日本語で行うこと**
+
 ## Project Overview
 
 cc-YOLOCON is a VS Code extension that provides safe Git worktree management specifically designed for Claude Code YOLO mode. It creates isolated development environments with automatic devcontainer setup and environment variable management.

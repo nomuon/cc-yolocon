@@ -5,11 +5,13 @@ import { WorktreeTreeItem } from '../treeView';
 import { generateContainerEnv } from '../utils/env';
 
 export async function generateMainDevcontainer(
-  item: WorktreeTreeItem,
+  item: WorktreeTreeItem | undefined,
   context: vscode.ExtensionContext,
 ): Promise<void> {
   try {
-    if (!item.worktree.isMainRepo) {
+    // ツールバーから呼び出された場合、itemは undefined になる
+    // その場合は、現在のワークスペースがメインリポジトリであると仮定する
+    if (item && !item.worktree.isMainRepo) {
       vscode.window.showErrorMessage(
         'This action is only available for the main repository',
       );

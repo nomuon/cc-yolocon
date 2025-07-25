@@ -88,6 +88,11 @@
           "group": "navigation"
         },
         {
+          "command": "claude.generateMainDevcontainer",
+          "when": "view == worktreeView",
+          "group": "navigation"
+        },
+        {
           "command": "claude.refreshWorktrees",
           "when": "view == worktreeView",
           "group": "navigation"
