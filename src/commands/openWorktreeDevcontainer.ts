@@ -29,7 +29,7 @@ export async function openWorktreeDevcontainer(
       }
     }
 
-    // Open the worktree folder in a new window with devcontainer
+    // Open the worktree folder in a new window
     const folderUri = vscode.Uri.file(worktreePath);
     await vscode.commands.executeCommand(
       'vscode.openFolder',
@@ -37,10 +37,30 @@ export async function openWorktreeDevcontainer(
       true, // forceNewWindow = true
     );
 
-    // Show information message
-    vscode.window.showInformationMessage(
-      `Opening worktree "${item.worktree.name}" in new window. Use "Reopen in Container" from Command Palette to start devcontainer.`,
+    // Show detailed notification with action button
+    const message = `新しいウィンドウで worktree "${item.worktree.name}" を開きました。`;
+    const detail = `devcontainer を起動するには、新しいウィンドウで以下のいずれかの操作を行ってください：
+
+1. 左下の緑色のリモートアイコン (><) をクリックして「Reopen in Container」を選択
+2. コマンドパレット (Ctrl/Cmd+Shift+P) で「Dev Containers: Reopen in Container」を実行
+
+または、この通知の「手順をコピー」ボタンでクリップボードにコピーできます。`;
+
+    const action = await vscode.window.showInformationMessage(
+      message,
+      { modal: true, detail },
+      '手順をコピー',
+      'OK',
     );
+
+    if (action === '手順をコピー') {
+      await vscode.env.clipboard.writeText(
+        'Dev Containers: Reopen in Container',
+      );
+      vscode.window.showInformationMessage(
+        'コマンド名をクリップボードにコピーしました。新しいウィンドウのコマンドパレットに貼り付けてください。',
+      );
+    }
   } catch (error) {
     vscode.window.showErrorMessage(
       `Failed to open worktree in devcontainer: ${error instanceof Error ? error.message : 'Unknown error'}`,
