@@ -162,9 +162,17 @@ async function copyClaudeMd(
 ): Promise<void> {
   const sourceClaudeMd = path.join(sourcePath, 'CLAUDE.md');
   const targetClaudeMd = path.join(targetPath, 'CLAUDE.md');
+  const globalClaudeMdPath = path.join(
+    process.env.HOME || process.env.USERPROFILE || '',
+    '.claude',
+    'CLAUDE.md',
+  );
 
+  let baseContent = '';
+
+  // ベースとなる CLAUDE.md の内容を取得
   if (await fs.pathExists(sourceClaudeMd)) {
-    await fs.copy(sourceClaudeMd, targetClaudeMd);
+    baseContent = await fs.readFile(sourceClaudeMd, 'utf8');
   } else {
     const templateClaudeMd = path.join(
       __dirname,
@@ -174,7 +182,33 @@ async function copyClaudeMd(
       'CLAUDE.md',
     );
     if (await fs.pathExists(templateClaudeMd)) {
-      await fs.copy(templateClaudeMd, targetClaudeMd);
+      baseContent = await fs.readFile(templateClaudeMd, 'utf8');
+    }
+  }
+
+  // グローバル CLAUDE.md が存在する場合、追加するかユーザーに尋ねる
+  if (await fs.pathExists(globalClaudeMdPath)) {
+    const appendGlobal = await vscode.window.showQuickPick(['Yes', 'No'], {
+      placeHolder: 'Append global ~/.claude/CLAUDE.md content to CLAUDE.md?',
+    });
+
+    if (appendGlobal === 'Yes') {
+      const globalContent = await fs.readFile(globalClaudeMdPath, 'utf8');
+
+      // 水平線で区切ってグローバルコンテンツを追加
+      const finalContent =
+        baseContent.trim() + '\n\n---\n\n' + globalContent.trim();
+      await fs.writeFile(targetClaudeMd, finalContent, 'utf8');
+    } else {
+      // グローバル追加しない場合は、ベースコンテンツのみ
+      if (baseContent) {
+        await fs.writeFile(targetClaudeMd, baseContent, 'utf8');
+      }
+    }
+  } else {
+    // グローバル CLAUDE.md が存在しない場合は、ベースコンテンツのみ
+    if (baseContent) {
+      await fs.writeFile(targetClaudeMd, baseContent, 'utf8');
     }
   }
 }
