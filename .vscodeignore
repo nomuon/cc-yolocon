@@ -41,4 +41,4 @@ Thumbs.db
 *.swo
 
 # Templates (keep only what's needed)
-templates/**
+# templates/**

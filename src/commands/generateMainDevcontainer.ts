@@ -2,9 +2,11 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { WorktreeTreeItem } from '../treeView';
+import { generateContainerEnv } from '../utils/env';
 
 export async function generateMainDevcontainer(
   item: WorktreeTreeItem,
+  context: vscode.ExtensionContext,
 ): Promise<void> {
   try {
     if (!item.worktree.isMainRepo) {
@@ -64,7 +66,7 @@ export async function generateMainDevcontainer(
         });
 
         // テンプレートファイルをコピー
-        await copyTemplateFiles(devcontainerPath);
+        await copyTemplateFiles(devcontainerPath, context);
 
         progress.report({ increment: 100, message: 'Complete!' });
       },
@@ -80,30 +82,76 @@ export async function generateMainDevcontainer(
   }
 }
 
-async function copyTemplateFiles(devcontainerPath: string): Promise<void> {
-  const templatePath = path.join(__dirname, '..', '..', 'templates');
+async function copyTemplateFiles(
+  devcontainerPath: string,
+  context: vscode.ExtensionContext,
+): Promise<void> {
+  // ExtensionContextを使用してテンプレートパスを解決
+  const templatePath = path.join(context.extensionPath, 'templates');
 
-  // devcontainer.jsonをコピー
-  if (await fs.pathExists(path.join(templatePath, 'devcontainer.json'))) {
-    await fs.copy(
-      path.join(templatePath, 'devcontainer.json'),
+  // デバッグ情報の追加
+  console.log('Template path:', templatePath);
+  console.log('__dirname:', __dirname);
+
+  // テンプレートディレクトリの存在確認
+  if (!(await fs.pathExists(templatePath))) {
+    throw new Error(`Template directory not found at: ${templatePath}`);
+  }
+
+  // devcontainer.jsonを読み込み、containerEnvを追加してコピー
+  const devcontainerJsonSource = path.join(templatePath, 'devcontainer.json');
+  console.log('Checking devcontainer.json at:', devcontainerJsonSource);
+  if (await fs.pathExists(devcontainerJsonSource)) {
+    console.log('Reading and modifying devcontainer.json...');
+    const devcontainerJson = await fs.readJson(devcontainerJsonSource);
+
+    // containerEnvを動的に生成
+    devcontainerJson.containerEnv = generateContainerEnv();
+
+    // 修正したJSONを書き込み
+    await fs.writeJson(
       path.join(devcontainerPath, 'devcontainer.json'),
+      devcontainerJson,
+      { spaces: 2 },
     );
+    console.log('devcontainer.json written successfully');
+  } else {
+    console.error('devcontainer.json not found');
+    throw new Error('devcontainer.json template not found');
   }
 
   // Dockerfileをコピー
-  if (await fs.pathExists(path.join(templatePath, 'Dockerfile'))) {
-    await fs.copy(
-      path.join(templatePath, 'Dockerfile'),
-      path.join(devcontainerPath, 'Dockerfile'),
-    );
+  const dockerfileSource = path.join(templatePath, 'Dockerfile');
+  console.log('Checking Dockerfile at:', dockerfileSource);
+  if (await fs.pathExists(dockerfileSource)) {
+    console.log('Copying Dockerfile...');
+    await fs.copy(dockerfileSource, path.join(devcontainerPath, 'Dockerfile'), {
+      overwrite: true,
+    });
+  } else {
+    console.error('Dockerfile not found');
+    throw new Error('Dockerfile template not found');
   }
 
   // init-firewall.shをコピー
-  if (await fs.pathExists(path.join(templatePath, 'init-firewall.sh'))) {
+  const initScriptSource = path.join(templatePath, 'init-firewall.sh');
+  console.log('Checking init-firewall.sh at:', initScriptSource);
+  if (await fs.pathExists(initScriptSource)) {
+    console.log('Copying init-firewall.sh...');
     await fs.copy(
-      path.join(templatePath, 'init-firewall.sh'),
+      initScriptSource,
       path.join(devcontainerPath, 'init-firewall.sh'),
+      { overwrite: true },
     );
+
+    // ファイルの権限設定
+    await fs.chmod(path.join(devcontainerPath, 'init-firewall.sh'), '755');
+  } else {
+    console.error('init-firewall.sh not found');
+    throw new Error('init-firewall.sh template not found');
   }
+
+  // コピー後の確認
+  const copiedFiles = await fs.readdir(devcontainerPath);
+  console.log('Files in .devcontainer after copy:', copiedFiles);
 }

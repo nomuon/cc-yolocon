@@ -37,7 +37,7 @@ export function activate(context: vscode.ExtensionContext): void {
       openWorktreeDevcontainer(item),
     ),
     vscode.commands.registerCommand('claude.generateMainDevcontainer', (item) =>
-      generateMainDevcontainer(item),
+      generateMainDevcontainer(item, context),
     ),
     vscode.commands.registerCommand('claude.refreshWorktrees', () =>
       worktreeProvider.refresh(),
