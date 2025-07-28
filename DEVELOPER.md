@@ -2,167 +2,273 @@
 
 Development guide for cc-YOLOCON VS Code extension.
 
-## Project Structure
+---
 
-```
-claude-worktree-manager/
-├─ src/
-│  ├─ extension.ts         # Extension entry point
-│  ├─ treeView.ts          # Sidebar UI provider
-│  ├─ commands/            # Command implementations
-│  │   ├─ createWorktree.ts
-│  │   ├─ mergeWorktree.ts
-│  │   ├─ deleteWorktree.ts
-│  │   ├─ generateDevcontainer.ts
-│  │   └─ openDevcontainer.ts
-│  └─ utils/               # Utility modules
-│      ├─ git.ts           # Git operations wrapper
-│      ├─ fs.ts            # File system helpers
-│      └─ env.ts           # Environment variable definitions
-├─ templates/              # Template files
-│  ├─ devcontainer.json    # Devcontainer template
-│  ├─ Dockerfile          # Docker image definition
-│  ├─ init-firewall.sh    # Container initialization
-│  └─ CLAUDE.md           # Default CLAUDE.md template
-├─ package.json           # Extension manifest
-├─ tsconfig.json          # TypeScript configuration
-├─ .eslintrc.js           # Linting rules
-└─ .prettierrc            # Code formatting rules
-```
+## 🚀 Quick Development Setup
 
-## Development Workflow
+### Prerequisites
+- **VS Code** 1.89.0+
+- **Node.js** 18+
+- **Git** (available in PATH)
+- **Docker** (optional, for testing devcontainer features)
 
-### Setup
+### Get Started in 3 Steps
 
-1. **Clone and Install**
+1. **Clone & Install**
    ```bash
-   git clone <repository>
-   cd claude-worktree-manager
+   git clone https://github.com/nomuon/cc-yolocon.git
+   cd cc-yolocon
    npm install
    ```
 
-2. **Development Build**
+2. **Start Development**
    ```bash
-   npm run compile
-   npm run watch  # For continuous compilation
+   npm run watch    # Continuous compilation
    ```
 
-3. **Testing**
-   ```bash
-   npm run lint
-   npm test
-   ```
+3. **Test Extension**
+   - Press `F5` in VS Code to launch Extension Development Host
+   - Test your changes in the new VS Code window
 
-### Debugging in VS Code
+---
 
-1. Open the project in VS Code
-2. Press `F5` to launch Extension Development Host
-3. Test the extension in the new VS Code window
-4. Use debugger breakpoints in the original window
+## 📁 Project Structure
 
-### Code Quality
+```
+cc-yolocon/
+├─ src/                          # Main source code
+│  ├─ extension.ts               # 🎯 Extension entry point
+│  ├─ treeView.ts                # 🌳 Sidebar UI provider
+│  ├─ commands/                  # 📋 All commands
+│  │   ├─ createWorktree.ts      # ➕ Create new worktree
+│  │   ├─ deleteWorktree.ts      # 🗑️ Delete worktree + Docker cleanup
+│  │   ├─ mergeWorktree.ts       # ⇄ Merge worktree to main
+│  │   ├─ generateDevcontainer.ts      # ⚙️ Generate devcontainer
+│  │   ├─ generateMainDevcontainer.ts  # ⚙️ Generate for main repo
+│  │   ├─ openDevcontainer.ts          # 🐳 Open current workspace
+│  │   └─ openWorktreeDevcontainer.ts  # 🐳 Open worktree in new window
+│  └─ utils/                     # 🔧 Utility modules
+│      ├─ git.ts                 # Git operations wrapper
+│      ├─ fs.ts                  # File system helpers
+│      └─ env.ts                 # Environment variable definitions (140+ vars)
+├─ templates/                    # 📄 Template files
+│  ├─ devcontainer.json          # Devcontainer configuration
+│  ├─ Dockerfile                # Container image definition
+│  ├─ init-firewall.sh          # Container initialization script
+│  └─ CLAUDE.md                 # Default CLAUDE.md for worktrees
+├─ .github/workflows/            # 🤖 GitHub Actions
+│  └─ release.yml               # Automated VSIX build & release
+├─ package.json                  # Extension manifest & dependencies
+├─ tsconfig.json                # TypeScript configuration
+└─ README.md                    # User documentation
+```
 
-The project uses ESLint and Prettier for code quality:
+---
 
+## 🛠️ Development Commands
+
+| Command | Purpose | When to Use |
+|---------|---------|-------------|
+| `npm run compile` | Build TypeScript | Before testing |
+| `npm run watch` | Continuous build | During development |
+| `npm run lint` | Check code style | Before commits |
+| `npm run lint -- --fix` | Auto-fix issues | Fix formatting |
+| `npm test` | Run tests | Before releases |
+| `npm run package` | Create VSIX | For distribution |
+
+### Development Workflow
 ```bash
-# Format code
-npx prettier --write src/**/*.ts
+# 1. Start development mode
+npm run watch
 
-# Lint code
+# 2. Test in VS Code (F5 key)
+# 3. Make changes and see them hot-reload
+
+# 4. Before committing
 npm run lint
-
-# Fix linting issues
-npm run lint -- --fix
+npm test
+npm run compile
 ```
 
-## Architecture
+---
 
-### Extension Activation
+## 🏗️ Architecture Overview
 
-The extension activates when a workspace is opened. The main entry point is `src/extension.ts`:
+### Extension Lifecycle
 
 ```typescript
+// src/extension.ts
 export function activate(context: vscode.ExtensionContext): void {
+  // 1. Create tree data provider
   const worktreeProvider = new WorktreeProvider();
+  
+  // 2. Register sidebar view
   vscode.window.registerTreeDataProvider('worktreeView', worktreeProvider);
-  // Register commands...
+  
+  // 3. Register all commands
+  const commands = [
+    vscode.commands.registerCommand('claude.createWorktree', 
+      (item) => createWorktree(item, worktreeProvider)),
+    // ... more commands
+  ];
+  
+  context.subscriptions.push(...commands);
 }
 ```
 
-### TreeView Provider
+### Tree View System
 
-The `WorktreeProvider` class implements `vscode.TreeDataProvider` to display worktrees in the sidebar:
-
-- Fetches worktree data via Git commands
-- Provides tree items with context menus
-- Handles refresh operations
-
-### Command Architecture
-
-Each command is implemented as a separate module in `src/commands/`:
-
-- **createWorktree.ts**: Interactive worktree creation wizard
-- **mergeWorktree.ts**: Branch merge with safety checks
-- **deleteWorktree.ts**: Safe worktree deletion
-- **generateDevcontainer.ts**: Template-based container setup
-- **openDevcontainer.ts**: VS Code devcontainer integration
-
-### Git Operations
-
-The `src/utils/git.ts` module wraps Git commands using ShellJS:
+**WorktreeProvider** (`treeView.ts`) implements `vscode.TreeDataProvider`:
 
 ```typescript
-export async function getWorktrees(repoPath: string): Promise<WorktreeItem[]> {
-  // Uses 'git worktree list --porcelain'
+interface WorktreeItem {
+  name: string;           // Branch name
+  path: string;           // Absolute path
+  branch: string;         // Git branch
+  isCurrent: boolean;     // Is active worktree
+  isMainRepo: boolean;    // Is main repository
 }
 
-export async function createNewWorktree(
-  repoPath: string,
-  branchName: string,
-  worktreePath: string,
-  baseBranch?: string
-): Promise<void> {
-  // Uses 'git worktree add'
+class WorktreeTreeItem extends vscode.TreeItem {
+  constructor(public readonly worktree: WorktreeItem) {
+    // Visual styling based on worktree type
+    this.iconPath = worktree.isCurrent ? 
+      new vscode.ThemeIcon('check', new vscode.ThemeColor('charts.green')) :
+      worktree.isMainRepo ?
+      new vscode.ThemeIcon('home', new vscode.ThemeColor('charts.blue')) :
+      new vscode.ThemeIcon('git-branch', new vscode.ThemeColor('charts.yellow'));
+  }
 }
 ```
 
-## Templates
+---
 
-### Devcontainer Template
+## 📋 Command Implementation Patterns
 
-The `templates/devcontainer.json` includes:
-- Node.js development environment
-- Pre-configured VS Code extensions
-- Comprehensive environment variable mapping
-- Docker-in-Docker support
+### 1. Safety-First Operations
 
-### Environment Variables
-
-Environment variables are defined in `src/utils/env.ts`:
+All destructive commands follow this pattern:
 
 ```typescript
-const ENV_KEYS = [
-  "ANTHROPIC_API_KEY",
-  "CLAUDE_API_KEY",
-  // ... extensive list of common environment variables
-] as const;
+export async function deleteWorktree(item: WorktreeTreeItem): Promise<void> {
+  // 1. Validate input
+  if (!item || item.worktree.isCurrent) {
+    vscode.window.showErrorMessage('Cannot delete current worktree');
+    return;
+  }
+
+  // 2. Check for uncommitted changes
+  const hasChanges = await hasUncommittedChanges(item.worktree.path);
+  
+  // 3. Show appropriate warning
+  const message = hasChanges 
+    ? `Worktree has uncommitted changes. Delete anyway?`
+    : `Delete worktree "${item.worktree.name}"?`;
+    
+  // 4. Confirm with user
+  const confirm = await vscode.window.showWarningMessage(
+    message, 'Yes, Delete', 'Cancel'
+  );
+  
+  if (confirm !== 'Yes, Delete') return;
+
+  // 5. Perform operation with progress
+  await vscode.window.withProgress({
+    location: vscode.ProgressLocation.Notification,
+    title: 'Deleting worktree...'
+  }, async (progress) => {
+    // Actual deletion logic
+  });
+}
 ```
 
-## Testing
+### 2. User Input Collection
 
-### Manual Testing
+Interactive commands use VS Code's built-in UI:
 
-1. Open a Git repository in VS Code
-2. Open the cc-YOLOCON sidebar
-3. Test each command:
-   - Create worktree with/without devcontainer
-   - Merge worktree (create test branch first)
-   - Delete worktree
-   - Generate standalone devcontainer
+```typescript
+// Get branch name
+const branchName = await vscode.window.showInputBox({
+  prompt: 'Enter branch name',
+  placeHolder: 'feature/my-feature',
+  validateInput: (value) => {
+    if (!value.trim()) return 'Branch name is required';
+    if (!/^[a-zA-Z0-9/_-]+$/.test(value)) return 'Invalid branch name';
+    return null;
+  }
+});
 
-### Unit Tests
+// Get user choices
+const options = await vscode.window.showQuickPick([
+  { label: 'Create new branch', value: 'new' },
+  { label: 'Use existing branch', value: 'existing' }
+], { placeHolder: 'Select option' });
+```
 
-Unit tests use Vitest:
+---
+
+## 🐳 Docker Integration
+
+### Container Cleanup (deleteWorktree.ts)
+
+The extension includes comprehensive Docker resource cleanup:
+
+```typescript
+async function cleanupDockerResources(worktreePath: string, worktreeName: string) {
+  // 1. Multiple search patterns for containers
+  const searchPatterns = [
+    `vsc-${path.basename(worktreePath)}`,
+    `vsc-${worktreeName.replace(/\//g, '-')}`,
+    // ... more patterns
+  ];
+
+  // 2. Label-based search (DevContainer labels)
+  const labeledContainers = await execAsync(
+    `docker ps -a --filter "label=devcontainer.local_folder=${worktreePath}" --format "{{.Names}}"`
+  );
+
+  // 3. Safe container removal
+  for (const containerName of foundContainers) {
+    try {
+      await execAsync(`docker rm -f "${containerName}"`);
+      console.log(`✓ Removed container: ${containerName}`);
+    } catch (error) {
+      console.warn(`✗ Failed to remove: ${containerName}`, error);
+    }
+  }
+
+  // 4. Image cleanup
+  // 5. Volume cleanup
+}
+```
+
+---
+
+## 🧪 Testing
+
+### Manual Testing Checklist
+
+**Worktree Operations:**
+- [ ] Create worktree with new branch
+- [ ] Create worktree with existing branch  
+- [ ] Delete worktree (with/without uncommitted changes)
+- [ ] Merge worktree
+- [ ] Refresh worktree list
+
+**Devcontainer Features:**
+- [ ] Generate devcontainer for main repo
+- [ ] Generate devcontainer for worktree
+- [ ] Open worktree in devcontainer
+- [ ] Environment variables are passed correctly
+- [ ] `host.docker.internal` works for localhost services
+
+**Safety Features:**
+- [ ] Uncommitted changes warning works
+- [ ] Cannot delete current worktree
+- [ ] Path validation prevents overwrites
+- [ ] Docker cleanup removes containers/images
+
+### Unit Testing
 
 ```bash
 npm test                    # Run all tests
@@ -170,97 +276,232 @@ npm run test:watch         # Watch mode
 npm run test:coverage      # Coverage report
 ```
 
-## Building & Packaging
+Test files follow pattern: `*.test.ts` or `*.spec.ts`
+
+---
+
+## 📦 Building & Packaging
 
 ### Development Build
-
 ```bash
-npm run compile            # TypeScript compilation
-npm run watch             # Watch mode for development
+npm run compile            # One-time build
+npm run watch             # Continuous build
 ```
 
 ### Production Package
-
 ```bash
 npm run package           # Creates .vsix file
 ```
 
-### Installation
-
+### Testing Installation
 ```bash
-code --install-extension claude-worktree-manager-0.0.1.vsix
+# Install locally
+code --install-extension claude-worktree-manager-x.x.x.vsix
+
+# Uninstall
+code --uninstall-extension nomuon.claude-worktree-manager
 ```
 
-## Release Process
+---
 
-1. **Version Update**
+## 🚀 Release Process
+
+### Automated Release (GitHub Actions)
+
+1. **Update Version**
    ```bash
+   # Update package.json version manually or:
    npm version patch|minor|major
    ```
 
-2. **Build & Test**
-   ```bash
-   npm run compile
-   npm test
-   npm run lint
-   ```
+2. **Trigger Release**
+   - Go to GitHub Actions tab
+   - Run "Build and Release VSIX" workflow
+   - Download will be available in GitHub Releases
 
-3. **Package**
-   ```bash
-   npm run package
-   ```
+### Manual Release
 
-4. **Test Installation**
-   ```bash
-   code --install-extension claude-worktree-manager-x.x.x.vsix
-   ```
+```bash
+# 1. Version bump
+npm version patch
 
-## Common Issues
+# 2. Build & test
+npm run compile
+npm run lint
+npm test
 
-### Git Path Issues
+# 3. Package
+npm run package
 
-Ensure Git is available in PATH. The extension uses ShellJS to execute Git commands.
+# 4. Test installation
+code --install-extension claude-worktree-manager-x.x.x.vsix
+```
 
-### Template Loading
+---
 
-Templates are loaded from the `templates/` directory relative to the compiled extension. Ensure the build process includes template files.
+## 🎯 Key Implementation Details
 
-### Environment Variable Conflicts
+### Environment Variables (src/utils/env.ts)
 
-Some environment variables may conflict between local and container environments. The devcontainer setup uses `${localEnv:VAR_NAME}` syntax to pass through local variables.
+140+ environment variables are automatically configured:
 
-## Contributing
+```typescript
+const ENV_KEYS = [
+  // Claude/Anthropic
+  'ANTHROPIC_API_KEY', 'CLAUDE_API_KEY', 'ANTHROPIC_AUTH_TOKEN',
+  
+  // Development
+  'GH_TOKEN', 'GITHUB_TOKEN', 'NPM_TOKEN',
+  
+  // Cloud providers
+  'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AZURE_CLIENT_ID',
+  
+  // Databases
+  'DATABASE_URL', 'POSTGRES_URL', 'MYSQL_URL', 'MONGODB_URI',
+  
+  // And many more...
+] as const;
+```
 
-### Code Style
+### Git Operations (src/utils/git.ts)
 
-- Use TypeScript strict mode
-- Follow ESLint configuration
-- Use Prettier for formatting
-- Prefer async/await over Promises
-- Use explicit return types
+Uses ShellJS for reliable Git commands:
+
+```typescript
+export async function getWorktrees(repoPath: string): Promise<WorktreeItem[]> {
+  const result = shell.exec('git worktree list --porcelain', { 
+    cwd: repoPath, 
+    silent: true 
+  });
+  
+  if (result.code !== 0) {
+    throw new Error(`Git command failed: ${result.stderr}`);
+  }
+  
+  return parseWorktreeOutput(result.stdout);
+}
+```
+
+### Template System (templates/)
+
+Templates use placeholder replacement:
+
+```json
+// templates/devcontainer.json
+{
+  "name": "Development Container",
+  "build": { "dockerfile": "Dockerfile" },
+  "containerEnv": {
+    // Dynamically injected by src/utils/env.ts
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}"
+  }
+}
+```
+
+---
+
+## 🐛 Common Issues & Solutions
+
+### Development Issues
+
+**Extension not loading:**
+- Check VS Code Developer Console (`Help > Toggle Developer Tools`)
+- Verify `package.json` activation events
+- Ensure TypeScript compiles without errors
+
+**Commands not appearing:**
+- Check command registration in `src/extension.ts`
+- Verify `package.json` contributes.commands section
+- Reload Extension Development Host
+
+**Git operations failing:**
+- Ensure Git is in PATH
+- Check repository is a valid Git repo
+- Verify ShellJS execution context
+
+### Docker Issues
+
+**Container cleanup not working:**
+- Check Docker daemon is running
+- Verify container naming patterns match DevContainer conventions
+- Review cleanup logs in VS Code Developer Console
+
+**DevContainer not opening:**
+- Ensure VS Code Remote-Containers extension is installed
+- Check `.devcontainer/devcontainer.json` syntax
+- Verify Docker image builds successfully
+
+---
+
+## 🤝 Contributing
+
+### Code Style Guidelines
+
+- **TypeScript strict mode** enabled
+- **ESLint** for code quality
+- **Prettier** for consistent formatting
+- **Explicit return types** for functions
+- **Async/await** preferred over Promises
 
 ### Pull Request Process
 
-1. Create feature branch from `main`
-2. Implement changes with tests
-3. Ensure all tests pass
-4. Update documentation if needed
-5. Submit PR with clear description
+1. **Fork & branch** from `main`
+2. **Implement changes** with tests
+3. **Run quality checks**:
+   ```bash
+   npm run lint
+   npm test
+   npm run compile
+   ```
+4. **Update documentation** if needed
+5. **Submit PR** with clear description
 
 ### Debugging Tips
 
-- Use VS Code's built-in debugger with F5
+- Use `console.log()` for debugging (remove before PR)
 - Check VS Code Developer Console for errors
-- Use `console.log` for debugging (removed in production)
 - Test with different Git repository states
+- Use VS Code debugger with breakpoints (`F5`)
 
-## VS Code Extension APIs
+---
 
-Key APIs used:
+## 📚 VS Code Extension APIs
 
-- `vscode.window.registerTreeDataProvider()` - Sidebar tree view
-- `vscode.commands.registerCommand()` - Command registration
-- `vscode.window.showInputBox()` - User input dialogs
-- `vscode.window.showQuickPick()` - Selection dialogs
-- `vscode.window.withProgress()` - Progress indicators
-- `vscode.workspace.workspaceFolders` - Workspace access
+### Key APIs Used
+
+| API | Purpose | Usage |
+|-----|---------|-------|
+| `vscode.window.registerTreeDataProvider()` | Sidebar tree view | Worktree list display |
+| `vscode.commands.registerCommand()` | Command registration | All extension commands |
+| `vscode.window.showInputBox()` | User input | Branch names, paths |
+| `vscode.window.showQuickPick()` | Selection dialogs | Options, confirmations |
+| `vscode.window.withProgress()` | Progress indicators | Long-running operations |
+| `vscode.workspace.workspaceFolders` | Workspace access | Repository detection |
+
+### Extension Manifest (package.json)
+
+Key sections:
+- `contributes.commands` - Define available commands
+- `contributes.views` - Register sidebar views
+- `contributes.menus` - Context menu items
+- `activationEvents` - When extension loads
+
+---
+
+## 🔮 Future Enhancements
+
+### Planned Features
+- **Multi-repository support** - Manage worktrees across multiple repos
+- **Template customization** - User-defined devcontainer templates
+- **CLI mode** - Command-line interface for power users
+- **Worktree templates** - Pre-configured setups for common workflows
+
+### Architecture Improvements
+- **Better error handling** - More descriptive error messages
+- **Performance optimization** - Faster Git operations for large repos
+- **Enhanced logging** - Structured logging for troubleshooting
+- **Internationalization** - Multi-language support
+
+---
+
+**Happy coding with cc-YOLOCON! 🚀**
