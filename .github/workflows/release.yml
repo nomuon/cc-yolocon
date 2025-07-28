@@ -1,0 +1,113 @@
+name: Build and Release VSIX
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run lint
+      run: npm run lint
+
+    - name: Compile TypeScript
+      run: npm run compile
+
+    - name: Get package version
+      id: package-version
+      run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+    - name: Check if tag exists
+      id: check-tag
+      run: |
+        if git rev-parse "v${{ steps.package-version.outputs.version }}" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Build VSIX package
+      run: npm run package
+
+    - name: Get VSIX filename
+      id: vsix-filename
+      run: |
+        VSIX_FILE=$(ls *.vsix | head -n 1)
+        echo "filename=$VSIX_FILE" >> $GITHUB_OUTPUT
+
+    - name: Create Release and Upload VSIX
+      if: steps.check-tag.outputs.exists == 'false'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.package-version.outputs.version }}
+        name: cc-YOLOCON v${{ steps.package-version.outputs.version }}
+        body: |
+          ## cc-YOLOCON v${{ steps.package-version.outputs.version }}
+          
+          VS Code extension for managing Git worktrees for Claude Code YOLO mode safely and easily.
+          
+          ### Installation
+          1. Download the `${{ steps.vsix-filename.outputs.filename }}` file from the assets below
+          2. Open VS Code
+          3. Run command `Extensions: Install from VSIX...`
+          4. Select the downloaded VSIX file
+          
+          ### Features
+          - Safe Git worktree management
+          - Automatic devcontainer setup
+          - Environment variable management
+          - Docker resource cleanup
+          
+          **Generated automatically by GitHub Actions**
+        files: ${{ steps.vsix-filename.outputs.filename }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload VSIX as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: vsix-package
+        path: ${{ steps.vsix-filename.outputs.filename }}
+        retention-days: 30
+
+    - name: Display results
+      run: |
+        echo "✅ Build completed successfully"
+        echo "📦 VSIX file: ${{ steps.vsix-filename.outputs.filename }}"
+        echo "🏷️ Version: v${{ steps.package-version.outputs.version }}"
+        if [ "${{ steps.check-tag.outputs.exists }}" == "false" ]; then
+          echo "🚀 Release created: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.package-version.outputs.version }}"
+        else
+          echo "ℹ️ Release already exists for this version"
+        fi
