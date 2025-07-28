@@ -4,14 +4,21 @@ import { WorktreeItem } from '../treeView';
 
 export async function getWorktrees(repoPath: string): Promise<WorktreeItem[]> {
   return new Promise((resolve, reject) => {
+    // Mac環境でPATHが正しく設定されていない場合に備えてPATHを補強
+    if (process.platform === 'darwin') {
+      shell.env['PATH'] =
+        shell.env['PATH'] + ':/usr/local/bin:/opt/homebrew/bin';
+    }
+
     shell.cd(repoPath);
 
     const result = shell.exec('git worktree list --porcelain', {
       silent: true,
     });
 
-    if (result.code !== 0) {
-      reject(new Error(`Failed to list worktrees: ${result.stderr}`));
+    if (!result || result.code !== 0) {
+      const errorMsg = result ? result.stderr : 'Shell command returned null';
+      reject(new Error(`Failed to list worktrees: ${errorMsg}`));
       return;
     }
 
@@ -65,7 +72,7 @@ export async function getWorktrees(repoPath: string): Promise<WorktreeItem[]> {
     const currentBranchResult = shell.exec('git branch --show-current', {
       silent: true,
     });
-    if (currentBranchResult.code === 0) {
+    if (currentBranchResult && currentBranchResult.code === 0) {
       const currentBranch = currentBranchResult.stdout.trim();
       worktrees.forEach((wt) => {
         if (
@@ -90,9 +97,11 @@ export async function createNewWorktree(
   return new Promise((resolve, reject) => {
     shell.cd(repoPath);
 
-    const branchExists =
-      shell.exec(`git rev-parse --verify ${branchName}`, { silent: true })
-        .code === 0;
+    const branchCheckResult = shell.exec(
+      `git rev-parse --verify ${branchName}`,
+      { silent: true },
+    );
+    const branchExists = branchCheckResult && branchCheckResult.code === 0;
 
     let command: string;
     if (branchExists) {
@@ -104,8 +113,9 @@ export async function createNewWorktree(
 
     const result = shell.exec(command, { silent: false });
 
-    if (result.code !== 0) {
-      reject(new Error(`Failed to create worktree: ${result.stderr}`));
+    if (!result || result.code !== 0) {
+      const errorMsg = result ? result.stderr : 'Shell command returned null';
+      reject(new Error(`Failed to create worktree: ${errorMsg}`));
       return;
     }
 
@@ -119,8 +129,9 @@ export async function removeWorktree(worktreePath: string): Promise<void> {
       silent: false,
     });
 
-    if (result.code !== 0) {
-      reject(new Error(`Failed to remove worktree: ${result.stderr}`));
+    if (!result || result.code !== 0) {
+      const errorMsg = result ? result.stderr : 'Shell command returned null';
+      reject(new Error(`Failed to remove worktree: ${errorMsg}`));
       return;
     }
 
@@ -136,8 +147,9 @@ export async function hasUncommittedChanges(
 
     const result = shell.exec('git status --porcelain', { silent: true });
 
-    if (result.code !== 0) {
-      reject(new Error(`Failed to check git status: ${result.stderr}`));
+    if (!result || result.code !== 0) {
+      const errorMsg = result ? result.stderr : 'Shell command returned null';
+      reject(new Error(`Failed to check git status: ${errorMsg}`));
       return;
     }
 
@@ -151,8 +163,9 @@ export async function getCurrentBranch(worktreePath: string): Promise<string> {
 
     const result = shell.exec('git branch --show-current', { silent: true });
 
-    if (result.code !== 0) {
-      reject(new Error(`Failed to get current branch: ${result.stderr}`));
+    if (!result || result.code !== 0) {
+      const errorMsg = result ? result.stderr : 'Shell command returned null';
+      reject(new Error(`Failed to get current branch: ${errorMsg}`));
       return;
     }
 
@@ -171,10 +184,10 @@ export async function mergeBranch(
     const checkoutResult = shell.exec(`git checkout ${targetBranch}`, {
       silent: false,
     });
-    if (checkoutResult.code !== 0) {
+    if (!checkoutResult || checkoutResult.code !== 0) {
       reject(
         new Error(
-          `Failed to checkout ${targetBranch}: ${checkoutResult.stderr}`,
+          `Failed to checkout ${targetBranch}: ${checkoutResult ? checkoutResult.stderr : 'Shell command returned null'}`,
         ),
       );
       return;
@@ -183,9 +196,11 @@ export async function mergeBranch(
     const mergeResult = shell.exec(`git merge ${sourceBranch}`, {
       silent: false,
     });
-    if (mergeResult.code !== 0) {
+    if (!mergeResult || mergeResult.code !== 0) {
       reject(
-        new Error(`Failed to merge ${sourceBranch}: ${mergeResult.stderr}`),
+        new Error(
+          `Failed to merge ${sourceBranch}: ${mergeResult ? mergeResult.stderr : 'Shell command returned null'}`,
+        ),
       );
       return;
     }
